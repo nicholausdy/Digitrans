@@ -49,7 +49,7 @@ export async function registerUser(username:string, password: string, email:stri
         resp = await accountDBInterface.insertAccount(username, hashResult.Message, email, false)
         if (resp.Status == 'Success') {
             const url:string = await getURL()
-            resp = await mailer(email,url.concat('/',username))
+            resp = await mailer(email,'http://'.concat(url,'/',username))
             if (resp.Status == 'Success'){
                 resp.Code = 200
             }

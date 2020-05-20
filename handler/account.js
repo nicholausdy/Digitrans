@@ -52,7 +52,7 @@ async function registerUser(username, password, email) {
         resp = await accountDBInterface.insertAccount(username, hashResult.Message, email, false);
         if (resp.Status == 'Success') {
             const url = await getURL();
-            resp = await mailer(email, url.concat('/', username));
+            resp = await mailer(email, 'http://'.concat(url, '/', username));
             if (resp.Status == 'Success') {
                 resp.Code = 200;
             }

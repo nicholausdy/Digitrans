@@ -9,7 +9,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const accountHandler = __importStar(require("./handler/account"));
 async function main() {
-    const username = 'nyokap';
+    const username = 'nicdanyosss';
     const password = 'JackDullBoy1999';
     const email = 'nicdanyos@gmail.com';
     //const result1 : IResponse = await accountHandler.registerUser(username,password,email)
