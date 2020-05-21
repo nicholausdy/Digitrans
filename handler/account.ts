@@ -48,7 +48,11 @@ export async function registerUser(username:string, password: string, email:stri
         resp = await accountDBInterface.insertAccount(username, hashResult.Message, email, false)
         if (resp.Status == 'Success') {
             const url:string = await getURL()
-            resp = await mailerForVerification(email, url.concat('/account/verify','/',username))
+            //add token to url for added security
+            const privateKey : Buffer = fs.readFileSync(__dirname.concat('/jwtRS256.key'))
+            const passphrase : any = process.env.JWT_PASSPHRASE
+            const token : string = jwt.sign({username:username}, {key: privateKey, passphrase: passphrase }, {algorithm:"RS256", expiresIn: 1800});
+            resp = await mailerForVerification(email, url.concat('/account/verify','/',username,'/',token))
             if (resp.Status == 'Success'){
                 resp.Code = 200
             }
@@ -90,7 +94,7 @@ async function mailerForVerification(email:string, url:string) : Promise<IRespon
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Verify Your Digitrans Questionnaire Platform Account',
-            text: 'Thank you for registering your account for the first time.\nClick this link to verify your account: '.concat(url)
+            text: 'Thank you for registering your account for the first time.\nClick this link to verify your account (link will expire in 30 minutes): '.concat(url)
         };
 
         const mailerResult = await transporter.sendMail(mailOptions)
@@ -119,15 +123,30 @@ async function getURL() : Promise<string> {
 }
 
 //verify account
-export async function changeVerificationStatus(username:string) : Promise<IResponse> {
+export async function changeVerificationStatus(username:string, token:string) : Promise<IResponse> {
     let resp : IResponse = {Status:'', Message:''}
-    resp = await accountDBInterface.updateVerification(username,true)
-    if (resp.Status == 'Success'){
-        resp.Code = 200
-        resp.Message = 'Account has been verified'
+    const token_check : IResponse = await verifyJWT(token)
+    if (token_check.Status == 'Failed'){
+        resp = token_check
+        resp.Code = 403
     }
     else {
-        resp.Code = 500
+        //check whether username in token = requested username
+        if (token_check.Message.username == username){
+            resp = await accountDBInterface.updateVerification(username,true)
+            if (resp.Status == 'Success'){
+                resp.Code = 200
+                resp.Message = 'Account has been verified'
+            }
+            else {
+                resp.Code = 500
+            }
+        }
+        else {
+            resp.Status = 'Failed'
+            resp.Code = 403
+            resp.Message = 'Invalid token'
+        }
     }
     return resp
 }

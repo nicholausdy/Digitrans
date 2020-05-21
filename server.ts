@@ -37,9 +37,9 @@ app.post('/api/v1/account/register', async(req:any,res:any) => {
     }
 });
 
-app.get('/api/v1/account/verify/:username', async(req:any,res:any) => {
+app.get('/api/v1/account/verify/:username/:token', async(req:any,res:any) => {
     try{
-        const verifyResult : IResponse = await accountHandler.changeVerificationStatus(req.params.username)
+        const verifyResult : IResponse = await accountHandler.changeVerificationStatus(req.params.username,req.params.token)
         res.status(verifyResult.Code)
         res.json(verifyResult)
     }

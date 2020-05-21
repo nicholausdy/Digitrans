@@ -44,9 +44,9 @@ app.post('/api/v1/account/register', async (req, res) => {
         res.json(errorResult);
     }
 });
-app.get('/api/v1/account/verify/:username', async (req, res) => {
+app.get('/api/v1/account/verify/:username/:token', async (req, res) => {
     try {
-        const verifyResult = await accountHandler.changeVerificationStatus(req.params.username);
+        const verifyResult = await accountHandler.changeVerificationStatus(req.params.username, req.params.token);
         res.status(verifyResult.Code);
         res.json(verifyResult);
     }
