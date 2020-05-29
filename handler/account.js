@@ -252,9 +252,23 @@ async function verifyRequest(req) {
         }
         if (token) {
             const verifyResult = await verifyJWT(token);
-            resp.Status = verifyResult.Status;
-            resp.Code = verifyResult.Code;
-            resp.Message = verifyResult.Message;
+            if (verifyResult.Status == 'Success') {
+                if (verifyResult.Message.username != req.params.username) {
+                    resp.Status = 'Failed';
+                    resp.Code = 403;
+                    resp.Message = 'User '.concat(req.params.username, ' attempted to access resources owned by other user');
+                }
+                else {
+                    resp.Status = verifyResult.Status;
+                    resp.Code = verifyResult.Code;
+                    resp.Message = verifyResult.Message;
+                }
+            }
+            else {
+                resp.Status = verifyResult.Status;
+                resp.Code = verifyResult.Code;
+                resp.Message = verifyResult.Message;
+            }
         }
     }
     return resp;
@@ -287,6 +301,7 @@ async function createTempCode() {
         }
     }
 }
+exports.createTempCode = createTempCode;
 async function insertTempCode(username) {
     let resp = { Status: '', Message: '' };
     const tempcode_result = await createTempCode();

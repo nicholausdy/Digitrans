@@ -254,16 +254,30 @@ export async function verifyRequest(req:any) : Promise<IResponse>{
         }
         if (token){
             const verifyResult : IResponse = await verifyJWT(token) 
-            resp.Status = verifyResult.Status
-            resp.Code = verifyResult.Code
-            resp.Message = verifyResult.Message
+            if (verifyResult.Status == 'Success'){
+                if (verifyResult.Message.username != req.params.username) {
+                    resp.Status = 'Failed'
+                    resp.Code = 403
+                    resp.Message = 'User '.concat(req.params.username,' attempted to access resources owned by other user')
+                }
+                else {
+                    resp.Status = verifyResult.Status
+                    resp.Code = verifyResult.Code
+                    resp.Message = verifyResult.Message
+                }
+            }
+            else {
+                    resp.Status = verifyResult.Status
+                    resp.Code = verifyResult.Code
+                    resp.Message = verifyResult.Message
+            }
         }
     }
     return resp
 }
 
 //create random 4 digit temp token
-async function createTempCode(): Promise<IResponse> {
+export async function createTempCode(): Promise<IResponse> {
     let resp : IResponse = {Status:'',Message:''}
     try {
         let tempString : string = ''

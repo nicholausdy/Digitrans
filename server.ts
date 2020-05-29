@@ -2,8 +2,10 @@ import express from "express"
 import bodyParser from "body-parser"
 import cors from "cors"
 import * as accountHandler from "./handler/account"
+import * as questionnaireHandler from "./handler/questionnaire"
 import { IResponse } from "./interfaces/interfaceCollection"
 import { serverError } from "./errorHandler/server"
+import { read } from "fs"
 
 const app : any = express();
 app.use(cors());
@@ -75,6 +77,147 @@ app.put('/api/v1/account/changePassword', async(req:any,res:any) => {
         res.json(errorResult)
     }
 });
+
+//questionnaire
+app.post('/api/v1/questionnaire/:username/createQuestionnaire', async(req:any,res:any) => {
+    try {
+        const verifyUser : IResponse = await accountHandler.verifyRequest(req)
+        console.log(verifyUser)
+        if (verifyUser.Status == 'Success'){
+            const createResult : IResponse = await questionnaireHandler.createQuestionnaire(req.body.questionnaire_name,req.params.username)
+            res.status(createResult.Code)
+            res.json(createResult)
+        } 
+        else {
+            res.status(verifyUser.Code)
+            res.json(verifyUser)
+        }  
+    }
+    catch (e) {
+        const errorResult : IResponse = await serverError(e)
+        res.status(errorResult.Code)
+        res.json(errorResult)
+    }
+})
+
+app.get('/api/v1/questionnaire/:username/getQuestionnaire/:questionnaireid', async(req:any,res:any)=> {
+    try {
+        const verifyUser : IResponse = await accountHandler.verifyRequest(req)
+        console.log(verifyUser)
+        if (verifyUser.Status == 'Success'){
+            const readResult : IResponse = await questionnaireHandler.getOneQuestionnaire(req.params.questionnaireid)
+            if (readResult.Message.username != req.params.username){
+                const forbiddenResult : IResponse = {Status:'Failed',Message:'User '.concat(req.params.username,' attempted to access resources owned by other user'),Code:403}
+                res.status(forbiddenResult.Code)
+                res.json(forbiddenResult)
+            }
+            else {
+                res.status(readResult.Code)
+                res.json(readResult)
+            }
+        }
+        else {
+            res.status(verifyUser.Code)
+            res.json(verifyUser)
+        }
+   }
+   catch (e) {
+       const errorResult : IResponse = await serverError(e)
+       res.status(errorResult.Code)
+       res.json(errorResult)
+   }
+})
+
+app.get('/api/v1/questionnaire/:username/getQuestionnaire', async(req:any, res:any) => {
+    try {
+        const verifyUser : IResponse = await accountHandler.verifyRequest(req)
+        console.log(verifyUser)
+        if (verifyUser.Status == 'Success'){
+            const readResult : IResponse = await questionnaireHandler.getQuestionnairesByUsername(req.params.username)
+            res.status(readResult.Code)
+            res.json(readResult)
+        }
+        else {
+            res.status(verifyUser.Code)
+            res.json(verifyUser)
+        }
+   }
+   catch (e) {
+       const errorResult : IResponse = await serverError(e)
+       res.status(errorResult.Code)
+       res.json(errorResult)
+   }
+})
+
+app.put('/api/v1/questionnaire/:username/updateQuestionnaire/:questionnaireid', async(req:any,res:any)=> {
+    try {
+        const verifyUser : IResponse = await accountHandler.verifyRequest(req)
+        console.log(verifyUser)
+        if (verifyUser.Status == 'Success'){
+            const readResult : IResponse = await questionnaireHandler.getOneQuestionnaire(req.params.questionnaireid)
+            if (readResult.Status != 'Success'){
+                res.status(readResult.Code)
+                res.json(readResult)
+            }
+            else {
+                if (readResult.Message.username != req.params.username){
+                    const forbiddenResult : IResponse = {Status:'Failed',Message:'User '.concat(req.params.username,' attempted to access resources owned by other user'),Code:403}
+                    res.status(forbiddenResult.Code)
+                    res.json(forbiddenResult)
+                }
+                else {
+                    const updateResult : IResponse = await questionnaireHandler.updateQuestionnaire(req.params.questionnaireid,req.body.questionnaire_name)
+                    res.status(updateResult.Code)
+                    res.json(updateResult)
+                }
+            }
+        }
+        else {
+            res.status(verifyUser.Code)
+            res.json(verifyUser)
+        }
+   }
+   catch (e) {
+       const errorResult : IResponse = await serverError(e)
+       res.status(errorResult.Code)
+       res.json(errorResult)
+   }
+})
+
+app.delete('/api/v1/questionnaire/:username/deleteQuestionnaire/:questionnaireid', async(req:any,res:any)=> {
+    try {
+        const verifyUser : IResponse = await accountHandler.verifyRequest(req)
+        console.log(verifyUser)
+        if (verifyUser.Status == 'Success'){
+            const readResult : IResponse = await questionnaireHandler.getOneQuestionnaire(req.params.questionnaireid)
+            if (readResult.Status != 'Success'){
+                res.status(readResult.Code)
+                res.json(readResult)
+            }
+            else {
+                if (readResult.Message.username != req.params.username){
+                    const forbiddenResult : IResponse = {Status:'Failed',Message:'User '.concat(req.params.username,' attempted to access resources owned by other user'),Code:403}
+                    res.status(forbiddenResult.Code)
+                    res.json(forbiddenResult)
+                }
+                else {
+                    const deleteResult : IResponse = await questionnaireHandler.deleteQuestionnaire(req.params.questionnaireid)
+                    res.status(deleteResult.Code)
+                    res.json(deleteResult)
+                }
+            }
+        }
+        else {
+            res.status(verifyUser.Code)
+            res.json(verifyUser)
+        }
+   }
+   catch (e) {
+       const errorResult : IResponse = await serverError(e)
+       res.status(errorResult.Code)
+       res.json(errorResult)
+   }
+})
 
 //run server
 app.listen(3000, () => {

@@ -7,9 +7,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-const account = __importStar(require("./dbInterface/account"));
+const questionnaire = __importStar(require("./dbInterface/questionnaire"));
 async function main() {
-    const username = 'test3';
+    //const username:string = 'test3'
     const password = 'test1.2';
     const email = 'test4@gmail.com';
     const isverified = true;
@@ -28,7 +28,22 @@ async function main() {
     //console.log(result6)
     //const result7:IResponse = await account.getTempCode(username)
     //console.log(result7)
-    const result8 = await account.deleteAccount(username);
-    console.log(result8);
+    //const result8 : IResponse = await account.deleteAccount(username)
+    //console.log(result8)
+    const questionnaire_id = 37373737;
+    const questionnaire_name = 'Tester 4';
+    const username = '18217028';
+    //const result9 : IResponse = await questionnaire.insertQuestionnaire(questionnaire_id, questionnaire_name, username)
+    //console.log(result9)
+    //const result10 : IResponse = await questionnaire.readAllQuestionnaires()
+    //console.log(result10)
+    //const result11 : IResponse = await questionnaire.readOneQuestionnaire(questionnaire_id)
+    //console.log(result11)
+    //const result12 : IResponse = await questionnaire.readQuestionnairesByUsername(username)
+    //console.log(result12)
+    const result13 = await questionnaire.updateQuestionnaire(questionnaire_id, questionnaire_name);
+    console.log(result13);
+    //const result14 : IResponse = await questionnaire.deleteQuestionnaire(questionnaire_id)
+    //console.log(result14)
 }
 main();
