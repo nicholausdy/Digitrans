@@ -1,6 +1,7 @@
 import * as account from "./dbInterface/account"
 import * as questionnaire from "./dbInterface/questionnaire"
-import { IResponse } from "./interfaces/interfaceCollection"
+import { IResponse, IOpt, QuestionType } from "./interfaces/interfaceCollection"
+import * as question from "./dbInterface/question"
 
 async function main(){
     //const username:string = 'test3'
@@ -24,9 +25,13 @@ async function main(){
     //console.log(result7)
     //const result8 : IResponse = await account.deleteAccount(username)
     //console.log(result8)
-    const questionnaire_id : number = 37373737
+    const questionnaire_id : number = 141956352
     const questionnaire_name : string = 'Tester 4'
     const username : string = '18217028'
+    const question_type : QuestionType = 'radio'
+    const description : string = 'Universitas yang diambil?'
+    const opt = {opt1:"ITB",opt2:"UI",opt3:"UPH"}
+    const required : boolean = true
     //const result9 : IResponse = await questionnaire.insertQuestionnaire(questionnaire_id, questionnaire_name, username)
     //console.log(result9)
     //const result10 : IResponse = await questionnaire.readAllQuestionnaires()
@@ -35,10 +40,12 @@ async function main(){
     //console.log(result11)
     //const result12 : IResponse = await questionnaire.readQuestionnairesByUsername(username)
     //console.log(result12)
-    const result13 : IResponse = await questionnaire.updateQuestionnaire(questionnaire_id,questionnaire_name)
-    console.log(result13)
+    //const result13 : IResponse = await questionnaire.updateQuestionnaire(questionnaire_id,questionnaire_name)
+    //console.log(result13)
     //const result14 : IResponse = await questionnaire.deleteQuestionnaire(questionnaire_id)
     //console.log(result14)
+    const result15 : IResponse = await question.insertQuestion(questionnaire_id,question_type,description,opt, required)
+    console.log(result15)
 }
 
 main()

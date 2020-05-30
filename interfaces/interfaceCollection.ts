@@ -4,3 +4,9 @@ export interface IResponse {
     Message: any;
     Detail?: any
 }
+
+export interface IOpt {
+    opt1?: any;
+}
+
+export type QuestionType = "checkbox" | "radio" | "textarea" ;

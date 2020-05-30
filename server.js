@@ -15,6 +15,7 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const cors_1 = __importDefault(require("cors"));
 const accountHandler = __importStar(require("./handler/account"));
 const questionnaireHandler = __importStar(require("./handler/questionnaire"));
+const questionHandler = __importStar(require("./handler/question"));
 const server_1 = require("./errorHandler/server");
 const app = express_1.default();
 app.use(cors_1.default());
@@ -201,6 +202,156 @@ app.delete('/api/v1/questionnaire/:username/deleteQuestionnaire/:questionnaireid
                 }
                 else {
                     const deleteResult = await questionnaireHandler.deleteQuestionnaire(req.params.questionnaireid);
+                    res.status(deleteResult.Code);
+                    res.json(deleteResult);
+                }
+            }
+        }
+        else {
+            res.status(verifyUser.Code);
+            res.json(verifyUser);
+        }
+    }
+    catch (e) {
+        const errorResult = await server_1.serverError(e);
+        res.status(errorResult.Code);
+        res.json(errorResult);
+    }
+});
+app.post('/api/v1/questionnaire/:username/createQuestion/:questionnaireid', async (req, res) => {
+    try {
+        const verifyUser = await accountHandler.verifyRequest(req);
+        console.log(verifyUser);
+        if (verifyUser.Status == 'Success') {
+            const readResult = await questionnaireHandler.getOneQuestionnaire(req.params.questionnaireid);
+            if (readResult.Status != 'Success') {
+                res.status(readResult.Code);
+                res.json(readResult);
+            }
+            else {
+                if (readResult.Message.username != req.params.username) {
+                    const forbiddenResult = { Status: 'Failed', Message: 'User '.concat(req.params.username, ' attempted to access resources owned by other user'), Code: 403 };
+                    res.status(forbiddenResult.Code);
+                    res.json(forbiddenResult);
+                }
+                else {
+                    if ((req.body.question_type != 'radio') && (req.body.question_type != 'checkbox') && (req.body.question_type != 'textarea')) {
+                        const invalidResult = { Status: 'Failed', Message: 'Question type must be radio, checbox, or textarea', Code: 500 };
+                        res.status(invalidResult.Code);
+                        res.json(invalidResult);
+                    }
+                    else {
+                        const addResult = await questionHandler.createQuestion(req.params.questionnaireid, req.body.question_type, req.body.description, req.body.opt, req.body.required);
+                        res.status(addResult.Code);
+                        res.json(addResult);
+                    }
+                }
+            }
+        }
+        else {
+            res.status(verifyUser.Code);
+            res.json(verifyUser);
+        }
+    }
+    catch (e) {
+        const errorResult = await server_1.serverError(e);
+        res.status(errorResult.Code);
+        res.json(errorResult);
+    }
+});
+app.get('/api/v1/questionnaire/:username/getQuestion/:questionnaireid', async (req, res) => {
+    try {
+        const verifyUser = await accountHandler.verifyRequest(req);
+        console.log(verifyUser);
+        if (verifyUser.Status == 'Success') {
+            const readResult = await questionnaireHandler.getOneQuestionnaire(req.params.questionnaireid);
+            if (readResult.Status != 'Success') {
+                res.status(readResult.Code);
+                res.json(readResult);
+            }
+            else {
+                if (readResult.Message.username != req.params.username) {
+                    const forbiddenResult = { Status: 'Failed', Message: 'User '.concat(req.params.username, ' attempted to access resources owned by other user'), Code: 403 };
+                    res.status(forbiddenResult.Code);
+                    res.json(forbiddenResult);
+                }
+                else {
+                    const getResult = await questionHandler.getQuestionsByQuestionnaireId(req.params.questionnaireid);
+                    res.status(getResult.Code);
+                    res.json(getResult);
+                }
+            }
+        }
+        else {
+            res.status(verifyUser.Code);
+            res.json(verifyUser);
+        }
+    }
+    catch (e) {
+        const errorResult = await server_1.serverError(e);
+        res.status(errorResult.Code);
+        res.json(errorResult);
+    }
+});
+app.put('/api/v1/questionnaire/:username/updateQuestion/:questionnaireid/:questionid', async (req, res) => {
+    try {
+        const verifyUser = await accountHandler.verifyRequest(req);
+        console.log(verifyUser);
+        if (verifyUser.Status == 'Success') {
+            const readResult = await questionnaireHandler.getOneQuestionnaire(req.params.questionnaireid);
+            if (readResult.Status != 'Success') {
+                res.status(readResult.Code);
+                res.json(readResult);
+            }
+            else {
+                if (readResult.Message.username != req.params.username) {
+                    const forbiddenResult = { Status: 'Failed', Message: 'User '.concat(req.params.username, ' attempted to access resources owned by other user'), Code: 403 };
+                    res.status(forbiddenResult.Code);
+                    res.json(forbiddenResult);
+                }
+                else {
+                    if ((req.body.question_type != 'radio') && (req.body.question_type != 'checkbox') && (req.body.question_type != 'textarea')) {
+                        const invalidResult = { Status: 'Failed', Message: 'Question type must be radio, checbox, or textarea', Code: 500 };
+                        res.status(invalidResult.Code);
+                        res.json(invalidResult);
+                    }
+                    else {
+                        const updateResult = await questionHandler.updateQuestion(req.params.questionnaireid, req.params.questionid, req.body.question_type, req.body.description, req.body.opt, req.body.required);
+                        res.status(updateResult.Code);
+                        res.json(updateResult);
+                    }
+                }
+            }
+        }
+        else {
+            res.status(verifyUser.Code);
+            res.json(verifyUser);
+        }
+    }
+    catch (e) {
+        const errorResult = await server_1.serverError(e);
+        res.status(errorResult.Code);
+        res.json(errorResult);
+    }
+});
+app.delete('/api/v1/questionnaire/:username/deleteQuestion/:questionnaireid/:questionid', async (req, res) => {
+    try {
+        const verifyUser = await accountHandler.verifyRequest(req);
+        console.log(verifyUser);
+        if (verifyUser.Status == 'Success') {
+            const readResult = await questionnaireHandler.getOneQuestionnaire(req.params.questionnaireid);
+            if (readResult.Status != 'Success') {
+                res.status(readResult.Code);
+                res.json(readResult);
+            }
+            else {
+                if (readResult.Message.username != req.params.username) {
+                    const forbiddenResult = { Status: 'Failed', Message: 'User '.concat(req.params.username, ' attempted to access resources owned by other user'), Code: 403 };
+                    res.status(forbiddenResult.Code);
+                    res.json(forbiddenResult);
+                }
+                else {
+                    const deleteResult = await questionHandler.removeQuestion(req.params.questionnaireid, req.params.questionid);
                     res.status(deleteResult.Code);
                     res.json(deleteResult);
                 }
